@@ -1,0 +1,164 @@
+/* savedTrips.css
+   Reuses all itinerary.css classes:
+   .itn-root, .itn-topbar, .itn-hero, .itn-hero-badge,
+   .itn-hero-title, .itn-hero-stats, .itn-stat, .itn-stat-divider,
+   .itn-day-block, .itn-day-header, .itn-day-label, .itn-day-num,
+   .itn-day-count, .itn-day-line, .itn-places-grid, .itn-place-card,
+   .itn-card-accent, .itn-card-top, .itn-interest-tag, .itn-card-rating,
+   .itn-place-name, .itn-card-footer, .itn-place-city,
+   .itn-btn-back, .itn-btn-saved, .itn-btn-save, .itn-btn-view, .itn-empty
+*/
+
+/* ── Loading ── */
+.st-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  gap: 20px;
+  font-family: 'DM Sans', sans-serif;
+  color: #a07050;
+  font-size: 15px;
+}
+
+.st-spinner {
+  display: flex;
+  gap: 8px;
+}
+
+.st-spinner span {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #c2410c;
+  animation: stBounce 1.2s infinite ease-in-out;
+}
+
+.st-spinner span:nth-child(2) { animation-delay: 0.18s; background: #0f766e; }
+.st-spinner span:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes stBounce {
+  0%, 80%, 100% { transform: scale(0.65); opacity: 0.45; }
+  40%           { transform: scale(1);    opacity: 1; }
+}
+
+/* ── Search ── */
+.st-search-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1.5px solid rgba(194,65,12,0.15);
+  border-radius: 100px;
+  padding: 8px 18px;
+  margin-top: 20px;
+  min-width: 300px;
+  box-shadow: 0 2px 12px rgba(28,10,0,0.06);
+  transition: border-color 0.2s;
+}
+
+.st-search-wrap:focus-within {
+  border-color: #c2410c;
+}
+
+.st-search {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: #1c0a00;
+}
+
+.st-search::placeholder { color: #a07050; }
+
+.st-search-clear {
+  background: none;
+  border: none;
+  color: #a07050;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 4px;
+  transition: color 0.2s;
+}
+
+.st-search-clear:hover { color: #c2410c; }
+
+/* ── Trip block ── */
+.st-trip-block {
+  margin-bottom: 60px;
+  padding-bottom: 48px;
+  border-bottom: 2px dashed rgba(194,65,12,0.12);
+  animation: itnFadeUp 0.45s ease both;
+}
+
+.st-trip-block:last-child {
+  border-bottom: none;
+}
+
+.st-trip-header {
+  margin-bottom: 4px;
+}
+
+.st-trip-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* ── Delete button ── */
+.st-delete-btn {
+  background: none;
+  border: 1.5px solid rgba(220,50,50,0.25);
+  color: #dc2626;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.st-delete-btn:hover:not(:disabled) {
+  background: #dc2626;
+  border-color: #dc2626;
+  transform: scale(1.08);
+}
+
+.st-delete-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── More card ── */
+.st-more-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  background: #fff8f4 !important;
+  border: 2px dashed rgba(194,65,12,0.18) !important;
+  color: #a07050;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: none !important;
+}
+
+.st-more-card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .st-search-wrap { min-width: unset; width: 100%; }
+  .st-trip-title-row { flex-wrap: wrap; }
+}
