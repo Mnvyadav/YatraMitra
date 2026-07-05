@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 
 function App() {
@@ -16,6 +16,7 @@ function App() {
   const [generating, setGenerating] = useState(false);
   const [authError, setAuthError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -27,6 +28,27 @@ function App() {
     });
     return () => listener.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const prefill = location.state;
+    if (!prefill) return;
+
+    if (Array.isArray(prefill.prefillCities)) {
+      setCities(prefill.prefillCities);
+    }
+    if (Array.isArray(prefill.prefillInterests)) {
+      setInterests(prefill.prefillInterests);
+    }
+    if (prefill.prefillDays) {
+      const start = new Date();
+      const end = new Date(start);
+      end.setDate(start.getDate() + Number(prefill.prefillDays) - 1);
+      setDepartureDate(start.toISOString().slice(0, 10));
+      setReturnDate(end.toISOString().slice(0, 10));
+    }
+
+    window.history.replaceState({}, document.title);
+  }, [location.state]);
 
   async function handleSignup() {
     setAuthError("");
@@ -74,7 +96,7 @@ function App() {
       if (!response.ok) throw new Error("Server error");
       const data = await response.json();
       if (!data.itinerary) { alert("No itinerary returned"); return; }
-      navigate("/itinerary", { state: { itinerary: data.itinerary } });
+      navigate("/itinerary", { state: { itinerary: data.itinerary, departureDate, returnDate } });
     } catch (err) {
       console.error(err);
       alert("Backend connection failed. Make sure your server is running.");
@@ -102,8 +124,7 @@ function App() {
     { name: "Ratnagiri",                 emoji: "🥭" },
     { name: "Chandrapur",                emoji: "🐅" },
     { name: "Buldhana",                  emoji: "🏛️" },
-    { name: "Chhatrapati SambhajiNagar", emoji: "⚔️" },
-    { name: "Nagpur",                    emoji: "🦁" },
+    { name: "Chhatrapati SambhajiNagar", emoji: "🦁" },
   ];
 
   const interestList = [
@@ -127,7 +148,7 @@ function App() {
     { name: "Mumbai",          desc: "City of Dreams",         emoji: "🌆", tag: "Culture"   },
     { name: "Lonavala",        desc: "Monsoon Getaway",        emoji: "⛰️", tag: "Adventure" },
     { name: "Alibag",          desc: "Coastal Retreat",        emoji: "🏖️", tag: "Beach"     },
-    { name: "Chandrapur",      desc: "Wildlife Sanctuary",     emoji: "🐅", tag: "Nature"    },
+  
   ];
 
   return (
@@ -148,6 +169,9 @@ function App() {
               <button className="nav-btn-outline" onClick={() => navigate("/saved")}>
                 📂 My Trips
               </button>
+              <button className="nav-btn-outline" onClick={() => navigate("/kumbh")}>
+                🔱 Kumbh 2027
+              </button>
               <button className="nav-btn-ghost" onClick={handleLogout}>
                 Sign Out
               </button>
@@ -156,6 +180,9 @@ function App() {
             <>
               <button className="nav-btn-ghost" onClick={() => { setAuthError(""); setShowLogin(true); }}>
                 Sign In
+              </button>
+              <button className="nav-btn-outline" onClick={() => navigate("/kumbh")}>
+                🔱 Kumbh 2027
               </button>
               <button className="nav-btn-primary" onClick={() => { setAuthError(""); setShowSignup(true); }}>
                 Get Started

@@ -6,7 +6,6 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// Fix Leaflet default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
@@ -31,14 +30,12 @@ const interestConfig = {
   nightlife: { emoji: "🌙", color: "#1e1b4b", bg: "#e0e7ff" },
 };
 
-// Day colors — each day gets a distinct color
 const DAY_COLORS = [
   "#C2410C", "#0F766E", "#7C3AED", "#B45309", "#0E7490",
   "#BE185D", "#166534", "#1E3A8A", "#92400E", "#4C1D95",
 ];
 const getDayColor = (day) => DAY_COLORS[(day - 1) % DAY_COLORS.length];
 
-// Numbered marker with day color
 function makeIcon(color, label) {
   return L.divIcon({
     className: "",
@@ -47,59 +44,86 @@ function makeIcon(color, label) {
       background:${color};border:3px solid white;
       box-shadow:0 2px 8px rgba(0,0,0,0.35);
       display:flex;align-items:center;justify-content:center;
-      font-size:12px;font-weight:700;color:white;
-      font-family:sans-serif;
+      font-size:12px;font-weight:700;color:white;font-family:sans-serif;
     ">${label}</div>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
-    popupAnchor: [0, -20],
+    iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -20],
   });
 }
 
-// Auto-fit map bounds when places change
 function MapBounds({ places }) {
   const map = useMap();
   useEffect(() => {
     if (places.length === 0) return;
     const valid = places.filter(p => p.latitude && p.longitude);
     if (valid.length === 0) return;
-    const bounds = L.latLngBounds(valid.map(p => [p.latitude, p.longitude]));
-    map.fitBounds(bounds, { padding: [40, 40] });
+    map.fitBounds(L.latLngBounds(valid.map(p => [p.latitude, p.longitude])), { padding: [40, 40] });
   }, [places, map]);
   return null;
 }
 
+// ── Booking buttons — one per interest ──
+function getBookingButtons(place, checkin, checkout) {
+  const { name, city, interest } = place;
+  const encodedName = encodeURIComponent(name);
+  const encodedCity = encodeURIComponent(city);
+  const citySlug    = city.toLowerCase().replace(/\s+/g, "-");
+
+  const hotelParams = new URLSearchParams({
+    ss: `${city}, Maharashtra, India`,
+    ...(checkin  && { checkin }),
+    ...(checkout && { checkout }),
+  });
+
+  const buttons = [
+    { label: "🏨 Book Hotel", url: `https://www.booking.com/search.html?${hotelParams}`, color: "#0f766e" },
+  ];
+
+  const i = interest?.toLowerCase();
+
+  if (i === "adventure")              buttons.push({ label: "🧗 Book Trek / Activity",  url: `https://www.thrillophilia.com/search?q=${encodedName}+${encodedCity}`, color: "#1e3a8a" });
+  if (i === "religious")              buttons.push({ label: "🙏 Book Darshan",           url: `https://devasthan.maharashtra.gov.in`,                                color: "#92400e" });
+  if (i === "heritage" || i === "history") buttons.push({ label: "🎟️ Book Entry Ticket", url: `https://asi.payumoney.com`,                                            color: "#374151" });
+  if (i === "wildlife")               buttons.push({ label: "🐆 Book Safari",            url: `https://www.tadobaonline.com`,                                        color: "#065f46" });
+  if (i === "nature")                 buttons.push({ label: "🌿 Book Nature Tour",       url: `https://www.thrillophilia.com/search?q=${encodedName}+${encodedCity}`, color: "#166534" });
+  if (i === "food")                   buttons.push({ label: "🍽️ Find Restaurants",       url: `https://www.zomato.com/${citySlug}`,                                  color: "#e23744" });
+  if (i === "beach")                  buttons.push({ label: "🏄 Book Water Sports",      url: `https://www.thrillophilia.com/search?q=water+sports+${encodedCity}`,  color: "#0e7490" });
+  if (i === "culture")                buttons.push({ label: "🎭 Book Cultural Show",     url: `https://in.bookmyshow.com/explore/activities/${citySlug}`,            color: "#6b21a8" });
+  if (i === "family")                 buttons.push({ label: "🎡 Book Family Activity",   url: `https://www.thrillophilia.com/search?q=family+${encodedCity}`,        color: "#be185d" });
+  if (i === "shopping")               buttons.push({ label: "🛍️ Explore Markets",        url: `https://www.thrillophilia.com/search?q=shopping+${encodedCity}`,      color: "#7c3aed" });
+  if (i === "village")                buttons.push({ label: "🌾 Book Village Stay",      url: `https://www.booking.com/search.html?ss=${encodedCity}+village+maharashtra`, color: "#3f6212" });
+
+  return buttons;
+}
+
+// ── Main Component ──
 function Itinerary() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const itinerary = location.state?.itinerary || [];
+  const itinerary     = location.state?.itinerary    || [];
+  const departureDate = location.state?.departureDate || "";
+  const returnDate    = location.state?.returnDate    || "";
 
-  const [saving, setSaving]       = useState(false);
-  const [saved, setSaved]         = useState(false);
-  const [saveError, setSaveError] = useState("");
-  const [activeDay, setActiveDay] = useState(null);
-
-  // AI popup
-  const [popup, setPopup]           = useState(null);
-  const [aiInfo, setAiInfo]         = useState("");
-  const [aiLoading, setAiLoading]   = useState(false);
-  const [placeImage, setPlaceImage] = useState(null);
+  const [saving, setSaving]           = useState(false);
+  const [saved, setSaved]             = useState(false);
+  const [saveError, setSaveError]     = useState("");
+  const [activeDay, setActiveDay]     = useState(null);
+  const [popup, setPopup]             = useState(null);
+  const [aiInfo, setAiInfo]           = useState("");
+  const [aiLoading, setAiLoading]     = useState(false);
+  const [placeImage, setPlaceImage]   = useState(null);
   const [imageCredit, setImageCredit] = useState(null);
 
   const openPlaceInfo = async (place) => {
     setPopup(place);
-    setAiInfo("");
-    setPlaceImage(null);
-    setImageCredit(null);
+    setAiInfo(""); setPlaceImage(null); setImageCredit(null);
     setAiLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/itinerary/place-info", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res  = await fetch("http://localhost:5000/api/itinerary/place-info", {
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: place.name, city: place.city })
       });
-      const data = await response.json();
+      const data = await res.json();
       setAiInfo(data.info || "No information available.");
       setPlaceImage(data.imageUrl || null);
       setImageCredit(data.imageCredit || null);
@@ -128,19 +152,15 @@ function Itinerary() {
   const totalPlaces = itinerary.reduce((acc, d) => acc + (d.places?.length || 0), 0);
   const allCities   = [...new Set(itinerary.flatMap(d => d.places?.map(p => p.city) || []))];
 
-  // Places to show on map (filtered by active day)
   const mapPlaces = (activeDay === null
     ? itinerary.flatMap(d => (d.places || []).map(p => ({ ...p, _day: d.day })))
     : (itinerary.find(d => d.day === activeDay)?.places || []).map(p => ({ ...p, _day: activeDay }))
   ).filter(p => p.latitude && p.longitude);
 
-  // Map center: average of all places
   const mapCenter = mapPlaces.length > 0
-    ? [
-        mapPlaces.reduce((s, p) => s + p.latitude, 0)  / mapPlaces.length,
-        mapPlaces.reduce((s, p) => s + p.longitude, 0) / mapPlaces.length,
-      ]
-    : [19.7515, 75.7139]; // Maharashtra center
+    ? [mapPlaces.reduce((s, p) => s + p.latitude,  0) / mapPlaces.length,
+       mapPlaces.reduce((s, p) => s + p.longitude, 0) / mapPlaces.length]
+    : [19.7515, 75.7139];
 
   if (itinerary.length === 0) {
     return (
@@ -186,23 +206,15 @@ function Itinerary() {
             <span className="itn-stat-label">{allCities.length === 1 ? "City" : "Cities"}</span>
           </div>
         </div>
-
         <div className="itn-day-pills">
-          <button
-            className={`itn-day-pill ${activeDay === null ? "active" : ""}`}
-            onClick={() => setActiveDay(null)}
-          >All Days</button>
+          <button className={`itn-day-pill ${activeDay === null ? "active" : ""}`} onClick={() => setActiveDay(null)}>All Days</button>
           {itinerary.map((d) => (
-            <button
-              key={d.day}
-              className={`itn-day-pill ${activeDay === d.day ? "active" : ""}`}
-              onClick={() => setActiveDay(d.day)}
-            >Day {d.day}</button>
+            <button key={d.day} className={`itn-day-pill ${activeDay === d.day ? "active" : ""}`} onClick={() => setActiveDay(d.day)}>Day {d.day}</button>
           ))}
         </div>
       </div>
 
-      {/* ── MAIN LAYOUT: Itinerary + Map side by side ── */}
+      {/* ── MAIN LAYOUT ── */}
       <div className="itn-layout">
 
         {/* LEFT: Itinerary */}
@@ -218,24 +230,19 @@ function Itinerary() {
                   </div>
                   <div className="itn-day-line" />
                 </div>
-
                 {dayPlan.places?.length > 0 ? (
                   <div className="itn-places-grid">
                     {dayPlan.places.map((place, idx) => {
                       const cfg = interestConfig[place.interest] || { emoji: "📌", color: "#374151", bg: "#f3f4f6" };
                       return (
-                        <div
-                          key={idx}
-                          className="itn-place-card"
+                        <div key={idx} className="itn-place-card"
                           style={{ animationDelay: `${i * 0.08 + idx * 0.05}s` }}
                           onClick={() => openPlaceInfo(place)}
                           title="Click for AI info"
                         >
                           <div className="itn-card-accent" style={{ background: cfg.color }} />
                           <div className="itn-card-top">
-                            <span className="itn-interest-tag" style={{ color: cfg.color, background: cfg.bg }}>
-                              {cfg.emoji} {place.interest}
-                            </span>
+                            <span className="itn-interest-tag" style={{ color: cfg.color, background: cfg.bg }}>{cfg.emoji} {place.interest}</span>
                             <span className="itn-card-rating">⭐ {place.rating}</span>
                           </div>
                           <h3 className="itn-place-name">{place.name}</h3>
@@ -263,34 +270,21 @@ function Itinerary() {
             <span className="itn-map-title">📍 Places on Map</span>
             <span className="itn-map-count">{mapPlaces.length} locations</span>
           </div>
-
-          {/* Day Legend */}
           <div className="itn-map-legend">
             {itinerary
               .filter(d => d.places?.length > 0)
               .filter(d => activeDay === null || d.day === activeDay)
               .map(d => (
-                <div
-                  key={d.day}
-                  className={`itn-legend-item ${activeDay === d.day ? "active" : ""}`}
-                  onClick={() => setActiveDay(activeDay === d.day ? null : d.day)}
-                >
-                  <span className="itn-legend-dot" style={{ background: getDayColor(d.day) }}>
-                    {d.day}
-                  </span>
+                <div key={d.day} className={`itn-legend-item ${activeDay === d.day ? "active" : ""}`}
+                  onClick={() => setActiveDay(activeDay === d.day ? null : d.day)}>
+                  <span className="itn-legend-dot" style={{ background: getDayColor(d.day) }}>{d.day}</span>
                   <span className="itn-legend-label">Day {d.day}</span>
                   <span className="itn-legend-count">{d.places?.length} places</span>
                 </div>
               ))}
           </div>
-
           <div className="itn-map-wrap">
-            <MapContainer
-              center={mapCenter}
-              zoom={8}
-              style={{ width: "100%", height: "100%" }}
-              scrollWheelZoom={true}
-            >
+            <MapContainer center={mapCenter} zoom={8} style={{ width: "100%", height: "100%" }} scrollWheelZoom={true}>
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -299,16 +293,10 @@ function Itinerary() {
               {mapPlaces.map((place, idx) => {
                 const color = getDayColor(place._day);
                 return (
-                  <Marker
-                    key={idx}
-                    position={[place.latitude, place.longitude]}
-                    icon={makeIcon(color, place._day)}
-                  >
+                  <Marker key={idx} position={[place.latitude, place.longitude]} icon={makeIcon(color, place._day)}>
                     <Popup>
                       <div className="itn-map-popup">
-                        <span className="itn-map-popup-day" style={{ background: color }}>
-                          Day {place._day}
-                        </span>
+                        <span className="itn-map-popup-day" style={{ background: color }}>Day {place._day}</span>
                         <strong>{place.name}</strong>
                         <span>{place.city}</span>
                         <span>⭐ {place.rating} · {place.interest}</span>
@@ -329,9 +317,7 @@ function Itinerary() {
           {saved && (
             <div className="itn-success-banner">
               ✅ Trip saved!{" "}
-              <span className="itn-success-link" onClick={() => navigate("/saved")}>
-                View in My Trips →
-              </span>
+              <span className="itn-success-link" onClick={() => navigate("/saved")}>View in My Trips →</span>
             </div>
           )}
           {saveError && <div className="itn-error-banner">{saveError}</div>}
@@ -341,9 +327,7 @@ function Itinerary() {
                 {saving ? "Saving..." : "💾 Save Trip"}
               </button>
             )}
-            <button className="itn-btn-view" onClick={() => navigate("/saved")}>
-              📂 View Saved Trips
-            </button>
+            <button className="itn-btn-view" onClick={() => navigate("/saved")}>📂 View Saved Trips</button>
           </div>
         </div>
       </div>
@@ -353,6 +337,7 @@ function Itinerary() {
         <div className="pi-overlay" onClick={closePopup}>
           <div className="pi-modal" onClick={(e) => e.stopPropagation()}>
 
+            {/* Photo header */}
             {!aiLoading && placeImage && (
               <div className="pi-image">
                 <img src={placeImage} alt={popup.name} />
@@ -360,12 +345,9 @@ function Itinerary() {
                   <h2 className="pi-image-title">{popup.name}</h2>
                   <span className="pi-image-city">📍 {popup.city}, Maharashtra</span>
                 </div>
-                {imageCredit && (
-                  <span className="pi-image-credit">Photo by {imageCredit} · Unsplash</span>
-                )}
+                {imageCredit && <span className="pi-image-credit">Photo by {imageCredit} · Unsplash</span>}
               </div>
             )}
-
             {(aiLoading || !placeImage) && (
               <div className="pi-header">
                 <div className="pi-header-left">
@@ -376,11 +358,9 @@ function Itinerary() {
                 <button className="pi-close" onClick={closePopup}>✕</button>
               </div>
             )}
+            {!aiLoading && placeImage && <button className="pi-close-over-image" onClick={closePopup}>✕</button>}
 
-            {!aiLoading && placeImage && (
-              <button className="pi-close-over-image" onClick={closePopup}>✕</button>
-            )}
-
+            {/* AI guide content */}
             <div className="pi-body">
               {aiLoading ? (
                 <div className="pi-loading">
@@ -393,7 +373,8 @@ function Itinerary() {
                     if (!line.trim()) return <br key={i} />;
                     if (/^---/.test(line)) return null;
                     const clean = line.replace(/\*\*/g, "").replace(/^\*\s?/, "• ");
-                    const isHeading = /^[🏛️⏰🎯💡📍]/.test(clean);
+                    // eslint-disable-next-line no-misleading-character-class
+                    const isHeading = /^[🏛️⏰🎯💡📍]/u.test(clean);
                     return isHeading
                       ? <p key={i} className="pi-heading">{clean}</p>
                       : <p key={i} className="pi-text">{clean}</p>;
@@ -401,6 +382,21 @@ function Itinerary() {
                 </div>
               )}
             </div>
+
+            {/* Booking buttons */}
+            {!aiLoading && (
+              <div className="pi-booking">
+                <p className="pi-booking-label">📌 Book for {popup.name}</p>
+                <div className="pi-booking-btns">
+                  {getBookingButtons(popup, departureDate, returnDate).map((btn, i) => (
+                    <a key={i} href={btn.url} target="_blank" rel="noopener noreferrer"
+                      className="pi-booking-btn" style={{ background: btn.color }}>
+                      {btn.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="pi-footer">
               <span>Powered by Gemini AI</span>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 import { useNavigate } from "react-router-dom";
-import "./savedTrips.css";
+import "./SavedTrips.css";
 
 const interestConfig = {
   nature:    { emoji: "🌿", color: "#166534", bg: "#dcfce7" },
