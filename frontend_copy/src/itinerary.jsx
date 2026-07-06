@@ -119,7 +119,7 @@ function Itinerary() {
     setAiInfo(""); setPlaceImage(null); setImageCredit(null);
     setAiLoading(true);
     try {
-      const res  = await fetch("http://localhost:5000/api/itinerary/place-info", {
+      const res  = await fetch("https://yatramitra-1.onrender.com/api/itinerary/place-info", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: place.name, city: place.city })
       });

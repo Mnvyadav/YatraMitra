@@ -88,7 +88,7 @@ function App() {
     }
     setGenerating(true);
     try {
-      const response = await fetch("http://localhost:5000/api/itinerary/generate", {
+      const response = await fetch("https://yatramitra-1.onrender.com/api/itinerary/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ city: cities, days, interests, budget: 2 })
