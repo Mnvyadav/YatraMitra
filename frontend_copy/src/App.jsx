@@ -341,6 +341,23 @@ function App() {
             <div className="planner-divider" />
 
             <div className="planner-section">
+              <label className="planner-label">✨ Your Interests</label>
+              <div className="interest-chips">
+                {interestList.map(({ tag, emoji }) => (
+                  <button
+                    key={tag}
+                    className={`chip ${interests.includes(tag) ? "active" : ""}`}
+                    onClick={() => toggleInterest(tag)}
+                  >
+                    {emoji} {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="planner-divider" />
+
+            <div className="planner-section">
               <label className="planner-label">🧭 Travel Mood</label>
               <div className="option-grid option-grid--three">
                 {travelStyles.map((style) => (
@@ -383,21 +400,6 @@ function App() {
             </div>
 
             <div className="planner-divider" />
-
-            <div className="planner-section">
-              <label className="planner-label">✨ Your Interests</label>
-              <div className="interest-chips">
-                {interestList.map(({ tag, emoji }) => (
-                  <button
-                    key={tag}
-                    className={`chip ${interests.includes(tag) ? "active" : ""}`}
-                    onClick={() => toggleInterest(tag)}
-                  >
-                    {emoji} {tag}
-                  </button>
-                ))}
-              </div>
-            </div>
 
             <button className="generate-btn" onClick={generateItinerary} disabled={generating}>
               {generating ? (
