@@ -293,45 +293,30 @@ function Itinerary() {
                   <div className="itn-day-line" />
                 </div>
                 {dayPlan.places?.length > 0 ? (
-                  <>
-                    <div className="itn-timeline">
-                      {dayPlan.places.slice(0, 3).map((place, idx) => {
-                        const cfg = interestConfig[place.interest] || { emoji: "📌", color: "#374151", bg: "#f3f4f6" };
-                        return (
-                          <div key={`${place.name}-${idx}`} className="itn-time-slot">
-                            <span className="itn-time-badge" style={{ background: cfg.color }}>{TIME_SLOTS[idx] || `Stop ${idx + 1}`}</span>
-                            <div>
-                              <strong>{place.name}</strong>
-                              <span>{cfg.emoji} {place.interest} · {place.city}</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className="itn-places-grid">
-                      {dayPlan.places.map((place, idx) => {
-                        const cfg = interestConfig[place.interest] || { emoji: "📌", color: "#374151", bg: "#f3f4f6" };
-                        return (
-                          <div key={idx} className="itn-place-card"
-                            style={{ animationDelay: `${i * 0.08 + idx * 0.05}s` }}
-                            onClick={() => openPlaceInfo(place)}
-                            title="Click for AI info"
-                          >
-                            <div className="itn-card-accent" style={{ background: cfg.color }} />
-                            <div className="itn-card-top">
-                              <span className="itn-interest-tag" style={{ color: cfg.color, background: cfg.bg }}>{cfg.emoji} {place.interest}</span>
-                              <span className="itn-card-rating">⭐ {place.rating}</span>
-                            </div>
-                            <h3 className="itn-place-name">{place.name}</h3>
-                            <div className="itn-card-footer">
-                              <span className="itn-place-city">📍 {place.city}</span>
-                              <span className="itn-card-hint">Tap for info →</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </>
+                  <div className="itn-timeline">
+                    {dayPlan.places.map((place, idx) => {
+                      const cfg = interestConfig[place.interest] || { emoji: "📌", color: "#374151", bg: "#f3f4f6" };
+                      return (
+                        <button
+                          key={`${place.name}-${idx}`}
+                          className="itn-time-slot"
+                          onClick={() => openPlaceInfo(place)}
+                          style={{ "--slot-color": cfg.color }}
+                          title={`View details for ${place.name}`}
+                        >
+                          <span className="itn-time-badge">{TIME_SLOTS[idx] || `Stop ${idx + 1}`}</span>
+                          <span className="itn-time-main">
+                            <strong>{place.name}</strong>
+                            <span>{cfg.emoji} {place.interest} · {place.city}</span>
+                          </span>
+                          <span className="itn-time-meta">
+                            <span>⭐ {place.rating}</span>
+                            <span>Details →</span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 ) : (
                   <div className="itn-empty-day">
                     <span>🌅</span>

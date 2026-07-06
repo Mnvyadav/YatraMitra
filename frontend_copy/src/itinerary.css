@@ -447,18 +447,29 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  margin-bottom: 16px;
 }
 
 .itn-time-slot {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 12px;
-  align-items: flex-start;
-  padding: 14px;
+  align-items: center;
+  padding: 16px 18px;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: white;
   box-shadow: var(--shadow-sm);
+  color: var(--text-dark);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  text-align: left;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.itn-time-slot:hover {
+  transform: translateY(-3px);
+  border-color: var(--slot-color);
+  box-shadow: var(--shadow-md);
 }
 
 .itn-time-badge {
@@ -466,26 +477,47 @@
   min-width: 76px;
   padding: 5px 9px;
   border-radius: 999px;
+  background: var(--slot-color);
   color: white;
   font-size: 11px;
   font-weight: 800;
   text-align: center;
 }
 
+.itn-time-main {
+  min-width: 0;
+}
+
 .itn-time-slot strong {
   display: block;
   margin-bottom: 4px;
   font-family: 'Playfair Display', serif;
-  font-size: 15px;
+  font-size: 17px;
   color: var(--text-dark);
+  overflow-wrap: anywhere;
 }
 
-.itn-time-slot span:last-child {
+.itn-time-main > span {
   display: block;
   color: var(--text-soft);
   font-size: 12px;
   line-height: 1.4;
   text-transform: capitalize;
+}
+
+.itn-time-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.itn-time-meta span:last-child {
+  color: var(--saffron);
 }
 
 /* ── PLACE CARD ── */
@@ -1238,5 +1270,8 @@
   .itn-hero-title { font-size: 28px; }
   .itn-smart-strip { grid-template-columns: 1fr; padding: 20px; }
   .itn-timeline { grid-template-columns: 1fr; }
+  .itn-time-slot { grid-template-columns: 1fr; }
+  .itn-time-badge { width: fit-content; }
+  .itn-time-meta { align-items: flex-start; flex-direction: row; }
   .itn-action-bar { padding: 14px 20px; }
 }
