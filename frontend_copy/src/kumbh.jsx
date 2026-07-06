@@ -109,6 +109,12 @@ const PACKAGES = [
   },
 ];
 
+const PLAN_STEPS = [
+  { num: "01", title: "Pick your Snan date", text: "Use the schedule below to choose the bathing day and ghat." },
+  { num: "02", title: "Book stay early", text: "Nashik and Trimbakeshwar rooms fill up months before major dates." },
+  { num: "03", title: "Generate your route", text: "Choose a package and YatraMitra will prefill the trip planner." },
+];
+
 // ── Countdown ──
 function useCountdown(target) {
   const [timeLeft, setTimeLeft] = useState({});
@@ -164,8 +170,8 @@ export default function Kumbh() {
           </h1>
 
           <p className="kb-hero-sub">
-            The world's largest spiritual gathering returns to the sacred banks of Godavari.
-            Plan your divine journey with YatraMitra.
+            Plan the sacred Godavari journey with dates, ghats, stays, safety tips,
+            and a ready itinerary for Nashik and Trimbakeshwar.
           </p>
 
           {/* Countdown */}
@@ -195,6 +201,42 @@ export default function Kumbh() {
             </button>
           </div>
         </div>
+
+        <div className="kb-hero-card" aria-label="Kumbh route overview">
+          <div className="kb-route-card">
+            <span className="kb-route-label">Main route</span>
+            <div className="kb-route-line">
+              <span>Ramkund</span>
+              <i />
+              <span>Trimbakeshwar</span>
+            </div>
+            <p>45 km between the two primary bathing centers. Plan separate time blocks for each.</p>
+          </div>
+          <div className="kb-visual">
+            <div className="kb-sun" />
+            <div className="kb-temple">
+              <span />
+              <span />
+              <span />
+            </div>
+            <div className="kb-river" />
+          </div>
+        </div>
+      </section>
+
+      {/* ── QUICK PLANNER ── */}
+      <section className="kb-quick-plan">
+        <div className="kb-quick-inner">
+          {PLAN_STEPS.map((step) => (
+            <div key={step.num} className="kb-quick-step">
+              <span className="kb-quick-num">{step.num}</span>
+              <div>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* ── ABOUT KUMBH ── */}
@@ -219,9 +261,24 @@ export default function Kumbh() {
               ))}
             </div>
           </div>
-          <div className="kb-about-img">
-            <img src="https://images.unsplash.com/photo-1561361058-c24e01238a46?w=600&q=80" alt="Kumbh Mela" />
-            <div className="kb-about-img-badge">🔱 Godavari River, Nashik</div>
+          <div className="kb-about-panel" aria-label="Nashik Kumbh overview">
+            <div className="kb-panel-top">
+              <span className="kb-panel-icon">🔱</span>
+              <div>
+                <span className="kb-panel-label">Pilgrim focus</span>
+                <h3>Ramkund + Kushavarta</h3>
+              </div>
+            </div>
+            <div className="kb-panel-map">
+              <div className="kb-map-node kb-map-node-a">Ramkund</div>
+              <div className="kb-map-path" />
+              <div className="kb-map-node kb-map-node-b">Trimbakeshwar</div>
+            </div>
+            <div className="kb-panel-list">
+              <span>🛕 Main bathing ghats</span>
+              <span>🚕 Advance local transport</span>
+              <span>🏨 Early accommodation booking</span>
+            </div>
           </div>
         </div>
       </section>
@@ -240,6 +297,7 @@ export default function Kumbh() {
               <div key={i} className="kb-date-card" style={{ "--accent": d.color }}>
                 <div className="kb-date-icon">{d.icon}</div>
                 <div className="kb-date-info">
+                  <span className="kb-date-index">Event {i + 1}</span>
                   <div className="kb-date-title">{d.title}</div>
                   <div className="kb-date-date">{d.date}</div>
                   <div className="kb-date-location">📍 {d.location}</div>
