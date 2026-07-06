@@ -10,6 +10,9 @@ function App() {
   const [departureDate, setDepartureDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [interests, setInterests] = useState([]);
+  const [travelStyle, setTravelStyle] = useState("pilgrim");
+  const [pace, setPace] = useState("balanced");
+  const [budgetLevel, setBudgetLevel] = useState("comfort");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -38,6 +41,15 @@ function App() {
     }
     if (Array.isArray(prefill.prefillInterests)) {
       setInterests(prefill.prefillInterests);
+    }
+    if (prefill.prefillStyle) {
+      setTravelStyle(prefill.prefillStyle);
+    }
+    if (prefill.prefillPace) {
+      setPace(prefill.prefillPace);
+    }
+    if (prefill.prefillBudget) {
+      setBudgetLevel(prefill.prefillBudget);
     }
     if (prefill.prefillDays) {
       const start = new Date();
@@ -91,12 +103,12 @@ function App() {
       const response = await fetch("https://yatramitra-1.onrender.com/api/itinerary/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ city: cities, days, interests, budget: 2 })
+        body: JSON.stringify({ city: cities, days, interests, budget: budgetLevel, travelStyle, pace })
       });
       if (!response.ok) throw new Error("Server error");
       const data = await response.json();
       if (!data.itinerary) { alert("No itinerary returned"); return; }
-      navigate("/itinerary", { state: { itinerary: data.itinerary, departureDate, returnDate } });
+      navigate("/itinerary", { state: { itinerary: data.itinerary, departureDate, returnDate, travelStyle, pace, budgetLevel } });
     } catch (err) {
       console.error(err);
       alert("Backend connection failed. Make sure your server is running.");
@@ -110,6 +122,20 @@ function App() {
 
   const toggleInterest = (tag) =>
     setInterests(prev => prev.includes(tag) ? prev.filter(i => i !== tag) : [...prev, tag]);
+
+  const applyPreset = (preset) => {
+    setCities(preset.cities);
+    setInterests(preset.interests);
+    setTravelStyle(preset.style);
+    setPace(preset.pace);
+    setBudgetLevel(preset.budget);
+    const start = new Date();
+    const end = new Date(start);
+    end.setDate(start.getDate() + preset.days - 1);
+    setDepartureDate(start.toISOString().slice(0, 10));
+    setReturnDate(end.toISOString().slice(0, 10));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const cityList = [
     { name: "Mumbai",                    emoji: "🌆" },
@@ -149,6 +175,71 @@ function App() {
     { name: "Lonavala",        desc: "Monsoon Getaway",        emoji: "⛰️", tag: "Adventure" },
     { name: "Alibag",          desc: "Coastal Retreat",        emoji: "🏖️", tag: "Beach"     },
   
+  ];
+
+  const travelStyles = [
+    { id: "pilgrim", label: "Pilgrim", icon: "🙏", note: "Temples, aarti, easier mornings" },
+    { id: "family", label: "Family", icon: "👨‍👩‍👧", note: "Comfortable stops and safer pace" },
+    { id: "youth", label: "Youth", icon: "🎒", note: "Food, views, hidden spots" },
+  ];
+
+  const paceOptions = [
+    { id: "easy", label: "Easy", icon: "🌿" },
+    { id: "balanced", label: "Balanced", icon: "⚖️" },
+    { id: "packed", label: "Packed", icon: "⚡" },
+  ];
+
+  const budgetOptions = [
+    { id: "budget", label: "Budget", icon: "₹" },
+    { id: "comfort", label: "Comfort", icon: "🏨" },
+    { id: "premium", label: "Premium", icon: "✨" },
+  ];
+
+  const journeyPresets = [
+    {
+      title: "Sai Darshan Weekend",
+      desc: "Shirdi, Nashik temples, calm family-friendly pace.",
+      icon: "🙏",
+      cities: ["Shirdi", "Nashik"],
+      interests: ["religious", "family", "food"],
+      days: 2,
+      style: "pilgrim",
+      pace: "easy",
+      budget: "comfort",
+    },
+    {
+      title: "Monsoon Youth Escape",
+      desc: "Lonavala and Pune with viewpoints, cafes, and adventure.",
+      icon: "🎒",
+      cities: ["Lonavala", "Pune"],
+      interests: ["nature", "adventure", "food", "hidden"],
+      days: 3,
+      style: "youth",
+      pace: "packed",
+      budget: "budget",
+    },
+    {
+      title: "Heritage Family Yatra",
+      desc: "Ajanta-Ellora side of Maharashtra with history and comfort.",
+      icon: "🏛️",
+      cities: ["Chhatrapati SambhajiNagar"],
+      interests: ["history", "culture", "family"],
+      days: 3,
+      style: "family",
+      pace: "balanced",
+      budget: "comfort",
+    },
+    {
+      title: "Kumbh 2027 Starter",
+      desc: "Nashik pilgrim route with ghats, darshan, and stay planning.",
+      icon: "🔱",
+      cities: ["Nashik"],
+      interests: ["religious", "culture", "family"],
+      days: 3,
+      style: "pilgrim",
+      pace: "easy",
+      budget: "comfort",
+    },
   ];
 
   return (
@@ -250,6 +341,50 @@ function App() {
             <div className="planner-divider" />
 
             <div className="planner-section">
+              <label className="planner-label">🧭 Travel Mood</label>
+              <div className="option-grid option-grid--three">
+                {travelStyles.map((style) => (
+                  <button
+                    key={style.id}
+                    className={`option-card ${travelStyle === style.id ? "active" : ""}`}
+                    onClick={() => setTravelStyle(style.id)}
+                  >
+                    <span className="option-icon">{style.icon}</span>
+                    <span className="option-title">{style.label}</span>
+                    <span className="option-note">{style.note}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="planner-divider" />
+
+            <div className="planner-section planner-mini-grid">
+              <div>
+                <label className="planner-label">🚶 Pace</label>
+                <div className="segmented">
+                  {paceOptions.map((item) => (
+                    <button key={item.id} className={pace === item.id ? "active" : ""} onClick={() => setPace(item.id)}>
+                      {item.icon} {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="planner-label">💰 Budget</label>
+                <div className="segmented">
+                  {budgetOptions.map((item) => (
+                    <button key={item.id} className={budgetLevel === item.id ? "active" : ""} onClick={() => setBudgetLevel(item.id)}>
+                      {item.icon} {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="planner-divider" />
+
+            <div className="planner-section">
               <label className="planner-label">✨ Your Interests</label>
               <div className="interest-chips">
                 {interestList.map(({ tag, emoji }) => (
@@ -274,6 +409,25 @@ function App() {
             </button>
 
           </div>
+        </div>
+      </section>
+
+      {/* ══ JOURNEY PRESETS ══ */}
+      <section className="journey-presets">
+        <div className="section-head">
+          <span className="section-badge">Start Faster</span>
+          <h2 className="section-title">Ready-Made Indian Journeys</h2>
+          <p className="section-sub">Pick a vibe and YatraMitra will set cities, interests, dates, pace, and budget.</p>
+        </div>
+        <div className="preset-grid">
+          {journeyPresets.map((preset) => (
+            <button key={preset.title} className="preset-card" onClick={() => applyPreset(preset)}>
+              <span className="preset-icon">{preset.icon}</span>
+              <span className="preset-title">{preset.title}</span>
+              <span className="preset-desc">{preset.desc}</span>
+              <span className="preset-meta">{preset.days} days · {preset.pace} pace · {preset.budget}</span>
+            </button>
+          ))}
         </div>
       </section>
 

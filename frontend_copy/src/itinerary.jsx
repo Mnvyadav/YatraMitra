@@ -36,6 +36,38 @@ const DAY_COLORS = [
 ];
 const getDayColor = (day) => DAY_COLORS[(day - 1) % DAY_COLORS.length];
 
+const TIME_SLOTS = ["Morning", "Afternoon", "Evening"];
+
+const tripProfiles = {
+  pilgrim: {
+    label: "Pilgrim friendly",
+    icon: "🙏",
+    note: "Start early for darshan, keep footwear/token counters in mind, and leave buffer for aarti or queue time.",
+  },
+  family: {
+    label: "Family friendly",
+    icon: "👨‍👩‍👧",
+    note: "Keep lunch and rest breaks fixed, avoid late-night transfers, and prefer shorter city hops.",
+  },
+  youth: {
+    label: "Youth friendly",
+    icon: "🎒",
+    note: "Add cafe stops, sunset viewpoints, local markets, and a little extra time for photos.",
+  },
+};
+
+const paceNotes = {
+  easy: "Easy pace: 2-3 meaningful stops with more rest time.",
+  balanced: "Balanced pace: steady sightseeing without rushing every stop.",
+  packed: "Packed pace: start early and keep transfers tight.",
+};
+
+const budgetNotes = {
+  budget: "Budget: use public transport, dharamshalas/hostels, and local thalis where possible.",
+  comfort: "Comfort: prefer reliable hotels, app cabs, and pre-booked activities.",
+  premium: "Premium: choose private transfers, flexible stays, and guided experiences.",
+};
+
 function makeIcon(color, label) {
   return L.divIcon({
     className: "",
@@ -103,6 +135,9 @@ function Itinerary() {
   const itinerary     = location.state?.itinerary    || [];
   const departureDate = location.state?.departureDate || "";
   const returnDate    = location.state?.returnDate    || "";
+  const travelStyle   = location.state?.travelStyle   || "pilgrim";
+  const pace          = location.state?.pace          || "balanced";
+  const budgetLevel   = location.state?.budgetLevel   || "comfort";
 
   const [saving, setSaving]           = useState(false);
   const [saved, setSaved]             = useState(false);
@@ -162,6 +197,8 @@ function Itinerary() {
        mapPlaces.reduce((s, p) => s + p.longitude, 0) / mapPlaces.length]
     : [19.7515, 75.7139];
 
+  const profile = tripProfiles[travelStyle] || tripProfiles.pilgrim;
+
   if (itinerary.length === 0) {
     return (
       <div className="itn-root">
@@ -214,6 +251,31 @@ function Itinerary() {
         </div>
       </div>
 
+      <div className="itn-smart-strip">
+        <div className="itn-smart-card itn-smart-card--main">
+          <span className="itn-smart-icon">{profile.icon}</span>
+          <div>
+            <span className="itn-smart-label">Trip style</span>
+            <h3>{profile.label}</h3>
+            <p>{profile.note}</p>
+          </div>
+        </div>
+        <div className="itn-smart-card">
+          <span className="itn-smart-icon">🚶</span>
+          <div>
+            <span className="itn-smart-label">Pace</span>
+            <p>{paceNotes[pace] || paceNotes.balanced}</p>
+          </div>
+        </div>
+        <div className="itn-smart-card">
+          <span className="itn-smart-icon">₹</span>
+          <div>
+            <span className="itn-smart-label">Budget</span>
+            <p>{budgetNotes[budgetLevel] || budgetNotes.comfort}</p>
+          </div>
+        </div>
+      </div>
+
       {/* ── MAIN LAYOUT ── */}
       <div className="itn-layout">
 
@@ -231,29 +293,45 @@ function Itinerary() {
                   <div className="itn-day-line" />
                 </div>
                 {dayPlan.places?.length > 0 ? (
-                  <div className="itn-places-grid">
-                    {dayPlan.places.map((place, idx) => {
-                      const cfg = interestConfig[place.interest] || { emoji: "📌", color: "#374151", bg: "#f3f4f6" };
-                      return (
-                        <div key={idx} className="itn-place-card"
-                          style={{ animationDelay: `${i * 0.08 + idx * 0.05}s` }}
-                          onClick={() => openPlaceInfo(place)}
-                          title="Click for AI info"
-                        >
-                          <div className="itn-card-accent" style={{ background: cfg.color }} />
-                          <div className="itn-card-top">
-                            <span className="itn-interest-tag" style={{ color: cfg.color, background: cfg.bg }}>{cfg.emoji} {place.interest}</span>
-                            <span className="itn-card-rating">⭐ {place.rating}</span>
+                  <>
+                    <div className="itn-timeline">
+                      {dayPlan.places.slice(0, 3).map((place, idx) => {
+                        const cfg = interestConfig[place.interest] || { emoji: "📌", color: "#374151", bg: "#f3f4f6" };
+                        return (
+                          <div key={`${place.name}-${idx}`} className="itn-time-slot">
+                            <span className="itn-time-badge" style={{ background: cfg.color }}>{TIME_SLOTS[idx] || `Stop ${idx + 1}`}</span>
+                            <div>
+                              <strong>{place.name}</strong>
+                              <span>{cfg.emoji} {place.interest} · {place.city}</span>
+                            </div>
                           </div>
-                          <h3 className="itn-place-name">{place.name}</h3>
-                          <div className="itn-card-footer">
-                            <span className="itn-place-city">📍 {place.city}</span>
-                            <span className="itn-card-hint">Tap for info →</span>
+                        );
+                      })}
+                    </div>
+                    <div className="itn-places-grid">
+                      {dayPlan.places.map((place, idx) => {
+                        const cfg = interestConfig[place.interest] || { emoji: "📌", color: "#374151", bg: "#f3f4f6" };
+                        return (
+                          <div key={idx} className="itn-place-card"
+                            style={{ animationDelay: `${i * 0.08 + idx * 0.05}s` }}
+                            onClick={() => openPlaceInfo(place)}
+                            title="Click for AI info"
+                          >
+                            <div className="itn-card-accent" style={{ background: cfg.color }} />
+                            <div className="itn-card-top">
+                              <span className="itn-interest-tag" style={{ color: cfg.color, background: cfg.bg }}>{cfg.emoji} {place.interest}</span>
+                              <span className="itn-card-rating">⭐ {place.rating}</span>
+                            </div>
+                            <h3 className="itn-place-name">{place.name}</h3>
+                            <div className="itn-card-footer">
+                              <span className="itn-place-city">📍 {place.city}</span>
+                              <span className="itn-card-hint">Tap for info →</span>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+                  </>
                 ) : (
                   <div className="itn-empty-day">
                     <span>🌅</span>

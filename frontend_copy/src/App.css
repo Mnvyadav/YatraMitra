@@ -238,6 +238,93 @@ body {
   margin-top: 8px;
 }
 
+.option-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.option-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.option-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--cream);
+  color: var(--text-dark);
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.option-card:hover {
+  border-color: var(--saffron);
+  background: #fff8f2;
+}
+
+.option-card.active {
+  border-color: var(--saffron);
+  background: var(--saffron-dim);
+  box-shadow: 0 4px 14px rgba(194,65,12,0.14);
+}
+
+.option-icon { font-size: 20px; }
+
+.option-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.option-note {
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--text-soft);
+}
+
+.planner-mini-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.segmented button {
+  min-height: 40px;
+  padding: 8px 6px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--cream);
+  color: var(--text-mid);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.segmented button:hover {
+  border-color: var(--saffron);
+  color: var(--saffron);
+}
+
+.segmented button.active {
+  border-color: var(--teal);
+  background: rgba(15,118,110,0.1);
+  color: var(--teal);
+}
+
 /* City chips */
 .city-chips {
   display: flex;
@@ -430,6 +517,76 @@ body {
 }
 
 /* ══ DESTINATIONS ══ */
+.journey-presets {
+  padding: 76px 52px;
+  background: var(--cream);
+  border-bottom: 1px solid var(--border);
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+}
+
+.preset-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 190px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: white;
+  color: var(--text-dark);
+  text-align: left;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+}
+
+.preset-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--saffron);
+  box-shadow: var(--shadow-md);
+}
+
+.preset-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--saffron-dim);
+  font-size: 24px;
+}
+
+.preset-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--saffron-deep);
+}
+
+.preset-desc {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-soft);
+}
+
+.preset-meta {
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(15,118,110,0.1);
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
 .destinations {
   padding: 80px 52px;
   background: var(--warm-white);
@@ -698,7 +855,10 @@ body {
   .hero-title { font-size: 32px; }
   .hero-sub   { font-size: 15px; }
   .planner-card { padding: 20px; }
+  .option-grid--three,
+  .planner-mini-grid { grid-template-columns: 1fr; }
   .destinations,
+  .journey-presets,
   .how-it-works { padding: 60px 20px; }
   .steps-row  { grid-template-columns: 1fr; }
   .dest-grid  { grid-template-columns: 1fr; }
