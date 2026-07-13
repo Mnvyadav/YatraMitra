@@ -13,6 +13,7 @@ function App() {
   const [travelStyle, setTravelStyle] = useState("pilgrim");
   const [pace, setPace] = useState("balanced");
   const [budgetLevel, setBudgetLevel] = useState("comfort");
+  const [ticketStep, setTicketStep] = useState(0);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -134,6 +135,7 @@ function App() {
     end.setDate(start.getDate() + preset.days - 1);
     setDepartureDate(start.toISOString().slice(0, 10));
     setReturnDate(end.toISOString().slice(0, 10));
+    setTicketStep(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -242,6 +244,18 @@ function App() {
     },
   ];
 
+  const ticketSteps = [
+    { label: "Cities", icon: "📍", hint: cities.length ? `${cities.length} selected` : "Pick places" },
+    { label: "Dates", icon: "📅", hint: departureDate && returnDate ? "Dates set" : "Choose dates" },
+    { label: "Interests", icon: "✨", hint: interests.length ? `${interests.length} selected` : "Choose vibe" },
+    { label: "Mood", icon: "🧭", hint: travelStyles.find(s => s.id === travelStyle)?.label || "Style" },
+    { label: "Pace", icon: "🎟️", hint: `${pace} · ${budgetLevel}` },
+  ];
+
+  const isLastTicketStep = ticketStep === ticketSteps.length - 1;
+  const goToNextTicketStep = () => setTicketStep((step) => Math.min(step + 1, ticketSteps.length - 1));
+  const goToPreviousTicketStep = () => setTicketStep((step) => Math.max(step - 1, 0));
+
   return (
     <>
       {/* ══ NAVBAR ══ */}
@@ -299,116 +313,157 @@ function App() {
           {/* PLANNER CARD */}
           <div className="planner-card">
 
-            <div className="planner-section">
-              <label className="planner-label">📍 Select Cities</label>
-              <div className="city-chips">
-                {cityList.map(({ name, emoji }) => (
-                  <button
-                    key={name}
-                    className={`city-chip ${cities.includes(name) ? "active" : ""}`}
-                    onClick={() => toggleCity(name)}
-                  >
-                    {emoji} {name}
-                  </button>
-                ))}
+            <div className="ticket-head">
+              <div>
+                <span className="ticket-kicker">Yatra Ticket</span>
+                <h2 className="ticket-title">{ticketSteps[ticketStep].icon} {ticketSteps[ticketStep].label}</h2>
               </div>
-              {cities.length > 0 && (
-                <p className="planner-selected">
-                  ✓ {cities.length} {cities.length === 1 ? "city" : "cities"} selected
-                </p>
+              <span className="ticket-count">Step {ticketStep + 1} / {ticketSteps.length}</span>
+            </div>
+
+            <div className="ticket-rail">
+              {ticketSteps.map((step, index) => (
+                <button
+                  key={step.label}
+                  className={`ticket-stop ${ticketStep === index ? "active" : ""} ${ticketStep > index ? "done" : ""}`}
+                  onClick={() => setTicketStep(index)}
+                >
+                  <span>{step.icon}</span>
+                  <strong>{step.label}</strong>
+                  <small>{step.hint}</small>
+                </button>
+              ))}
+            </div>
+
+            <div className="ticket-window">
+              {ticketStep === 0 && (
+                <div className="planner-section ticket-slide">
+                  <label className="planner-label">📍 Select Cities</label>
+                  <p className="ticket-help">Choose one or more cities for your Maharashtra journey.</p>
+                  <div className="city-chips">
+                    {cityList.map(({ name, emoji }) => (
+                      <button
+                        key={name}
+                        className={`city-chip ${cities.includes(name) ? "active" : ""}`}
+                        onClick={() => toggleCity(name)}
+                      >
+                        {emoji} {name}
+                      </button>
+                    ))}
+                  </div>
+                  {cities.length > 0 && (
+                    <p className="planner-selected">
+                      ✓ {cities.length} {cities.length === 1 ? "city" : "cities"} selected
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {ticketStep === 1 && (
+                <div className="planner-section ticket-slide">
+                  <label className="planner-label">📅 Travel Dates</label>
+                  <p className="ticket-help">Set the journey window so the planner can decide how many days to build.</p>
+                  <div className="date-row">
+                    <div className="date-field">
+                      <span className="date-field-label">Departure</span>
+                      <input type="date" value={departureDate}
+                        onChange={(e) => setDepartureDate(e.target.value)} />
+                    </div>
+                    <span className="date-arrow">→</span>
+                    <div className="date-field">
+                      <span className="date-field-label">Return</span>
+                      <input type="date" value={returnDate}
+                        onChange={(e) => setReturnDate(e.target.value)} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {ticketStep === 2 && (
+                <div className="planner-section ticket-slide">
+                  <label className="planner-label">✨ Your Interests</label>
+                  <p className="ticket-help">Pick what matters most: darshan, food, nature, culture, or hidden places.</p>
+                  <div className="interest-chips">
+                    {interestList.map(({ tag, emoji }) => (
+                      <button
+                        key={tag}
+                        className={`chip ${interests.includes(tag) ? "active" : ""}`}
+                        onClick={() => toggleInterest(tag)}
+                      >
+                        {emoji} {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {ticketStep === 3 && (
+                <div className="planner-section ticket-slide">
+                  <label className="planner-label">🧭 Travel Mood</label>
+                  <p className="ticket-help">Choose the kind of route that feels right for your group.</p>
+                  <div className="option-grid option-grid--three">
+                    {travelStyles.map((style) => (
+                      <button
+                        key={style.id}
+                        className={`option-card ${travelStyle === style.id ? "active" : ""}`}
+                        onClick={() => setTravelStyle(style.id)}
+                      >
+                        <span className="option-icon">{style.icon}</span>
+                        <span className="option-title">{style.label}</span>
+                        <span className="option-note">{style.note}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {ticketStep === 4 && (
+                <div className="planner-section planner-mini-grid ticket-slide">
+                  <div>
+                    <label className="planner-label">🚶 Pace</label>
+                    <p className="ticket-help">How full should each day feel?</p>
+                    <div className="segmented">
+                      {paceOptions.map((item) => (
+                        <button key={item.id} className={pace === item.id ? "active" : ""} onClick={() => setPace(item.id)}>
+                          {item.icon} {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="planner-label">💰 Budget</label>
+                    <p className="ticket-help">Choose the comfort level for stay, transport, and bookings.</p>
+                    <div className="segmented">
+                      {budgetOptions.map((item) => (
+                        <button key={item.id} className={budgetLevel === item.id ? "active" : ""} onClick={() => setBudgetLevel(item.id)}>
+                          {item.icon} {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
 
-            <div className="planner-divider" />
-
-            <div className="planner-section">
-              <label className="planner-label">📅 Travel Dates</label>
-              <div className="date-row">
-                <div className="date-field">
-                  <span className="date-field-label">Departure</span>
-                  <input type="date" value={departureDate}
-                    onChange={(e) => setDepartureDate(e.target.value)} />
-                </div>
-                <span className="date-arrow">→</span>
-                <div className="date-field">
-                  <span className="date-field-label">Return</span>
-                  <input type="date" value={returnDate}
-                    onChange={(e) => setReturnDate(e.target.value)} />
-                </div>
-              </div>
+            <div className="ticket-actions">
+              <button className="ticket-btn ticket-btn--ghost" onClick={goToPreviousTicketStep} disabled={ticketStep === 0}>
+                ← Previous
+              </button>
+              {!isLastTicketStep ? (
+                <button className="ticket-btn ticket-btn--next" onClick={goToNextTicketStep}>
+                  Next →
+                </button>
+              ) : (
+                <button className="generate-btn" onClick={generateItinerary} disabled={generating}>
+                  {generating ? (
+                    <span className="gen-loading">
+                      <span className="gen-dot" /><span className="gen-dot" /><span className="gen-dot" />
+                      Generating your trip...
+                    </span>
+                  ) : "✦ Generate My Itinerary"}
+                </button>
+              )}
             </div>
-
-            <div className="planner-divider" />
-
-            <div className="planner-section">
-              <label className="planner-label">✨ Your Interests</label>
-              <div className="interest-chips">
-                {interestList.map(({ tag, emoji }) => (
-                  <button
-                    key={tag}
-                    className={`chip ${interests.includes(tag) ? "active" : ""}`}
-                    onClick={() => toggleInterest(tag)}
-                  >
-                    {emoji} {tag}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="planner-divider" />
-
-            <div className="planner-section">
-              <label className="planner-label">🧭 Travel Mood</label>
-              <div className="option-grid option-grid--three">
-                {travelStyles.map((style) => (
-                  <button
-                    key={style.id}
-                    className={`option-card ${travelStyle === style.id ? "active" : ""}`}
-                    onClick={() => setTravelStyle(style.id)}
-                  >
-                    <span className="option-icon">{style.icon}</span>
-                    <span className="option-title">{style.label}</span>
-                    <span className="option-note">{style.note}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="planner-divider" />
-
-            <div className="planner-section planner-mini-grid">
-              <div>
-                <label className="planner-label">🚶 Pace</label>
-                <div className="segmented">
-                  {paceOptions.map((item) => (
-                    <button key={item.id} className={pace === item.id ? "active" : ""} onClick={() => setPace(item.id)}>
-                      {item.icon} {item.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="planner-label">💰 Budget</label>
-                <div className="segmented">
-                  {budgetOptions.map((item) => (
-                    <button key={item.id} className={budgetLevel === item.id ? "active" : ""} onClick={() => setBudgetLevel(item.id)}>
-                      {item.icon} {item.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="planner-divider" />
-
-            <button className="generate-btn" onClick={generateItinerary} disabled={generating}>
-              {generating ? (
-                <span className="gen-loading">
-                  <span className="gen-dot" /><span className="gen-dot" /><span className="gen-dot" />
-                  Generating your trip...
-                </span>
-              ) : "✦ Generate My Itinerary"}
-            </button>
 
           </div>
         </div>
