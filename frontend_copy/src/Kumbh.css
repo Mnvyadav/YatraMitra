@@ -856,6 +856,8 @@
 
   .kb-hero {
     grid-template-columns: 1fr;
+    min-height: auto;
+    gap: 28px;
   }
 
   .kb-about-grid,
@@ -871,21 +873,60 @@
   .kb-countdown-boxes {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .kb-hero-title {
+    font-size: clamp(44px, 12vw, 76px);
+  }
+
+  .kb-hero-title-en {
+    font-size: clamp(28px, 7vw, 44px);
+  }
+
+  .kb-booking-btns,
+  .kb-hero-btns {
+    width: 100%;
+  }
+
+  .kb-btn-primary,
+  .kb-btn-outline,
+  .kb-book-btn {
+    flex: 1 1 220px;
+    min-height: 46px;
+  }
 }
 
 @media (max-width: 640px) {
   .kb-hero {
     min-height: auto;
-    padding-top: 34px;
-    padding-bottom: 48px;
+    padding-top: 28px;
+    padding-bottom: 40px;
   }
 
   .kb-hero-card {
     display: none;
   }
 
+  .kb-back {
+    margin-bottom: 20px;
+  }
+
+  .kb-hero-sub {
+    font-size: 15px;
+  }
+
+  .kb-countdown {
+    margin: 22px 0 20px;
+    padding: 14px;
+  }
+
+  .kb-count-num {
+    font-size: 24px;
+  }
+
   .kb-date-card {
     grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
   }
 
   .kb-date-badge {
@@ -894,5 +935,56 @@
 
   .kb-stats {
     grid-template-columns: 1fr;
+  }
+
+  .kb-about,
+  .kb-quick-plan,
+  .kb-tabs-section,
+  .kb-packages,
+  .kb-booking,
+  .kb-tips,
+  .kb-cta {
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+
+  .kb-quick-step,
+  .kb-ghat-card {
+    align-items: flex-start;
+  }
+
+  .kb-panel-map {
+    min-height: 190px;
+  }
+
+  .kb-map-node-a {
+    left: 14px;
+  }
+
+  .kb-map-node-b {
+    right: 14px;
+  }
+
+  .kb-map-path {
+    left: 54px;
+    right: 58px;
+  }
+
+  .kb-pkg-highlight {
+    position: static;
+    display: inline-flex;
+    width: fit-content;
+    margin-bottom: 12px;
+  }
+
+  .kb-booking-inner,
+  .kb-cta-inner {
+    padding: 22px;
+  }
+
+  .kb-book-btn,
+  .kb-btn-primary,
+  .kb-btn-outline {
+    width: 100%;
   }
 }

@@ -850,13 +850,135 @@ body {
 .modal-switch span:hover { text-decoration: underline; }
 
 /* ══ RESPONSIVE ══ */
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 14px 28px;
+    gap: 14px;
+  }
+
+  .nav-right {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .hero {
+    min-height: auto;
+    padding: 42px 20px 56px;
+  }
+
+  .hero-title {
+    font-size: 44px;
+  }
+
+  .planner-card {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .destinations,
+  .journey-presets,
+  .how-it-works {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
 @media (max-width: 768px) {
-  .navbar     { padding: 14px 20px; }
-  .hero-title { font-size: 32px; }
-  .hero-sub   { font-size: 15px; }
-  .planner-card { padding: 20px; }
+  .navbar {
+    position: relative;
+    align-items: flex-start;
+    padding: 14px 16px;
+  }
+
+  .nav-left {
+    min-width: 0;
+  }
+
+  .nav-logo-text {
+    font-size: 21px;
+  }
+
+  .nav-right {
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .nav-user {
+    width: 100%;
+    justify-content: flex-end;
+    margin-right: 0;
+    font-size: 12px;
+  }
+
+  .nav-btn-ghost,
+  .nav-btn-outline,
+  .nav-btn-primary {
+    min-height: 38px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .hero {
+    padding: 30px 14px 44px;
+  }
+
+  .hero-badge {
+    margin-bottom: 14px;
+    font-size: 11px;
+  }
+
+  .hero-title {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+
+  .planner-card {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  .planner-label {
+    font-size: 12px;
+  }
+
+  .city-chip,
+  .chip {
+    min-height: 38px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .date-field {
+    width: 100%;
+  }
+
+  .date-field input {
+    min-height: 44px;
+    width: 100%;
+  }
+
   .option-grid--three,
   .planner-mini-grid { grid-template-columns: 1fr; }
+
+  .segmented {
+    grid-template-columns: 1fr;
+  }
+
+  .segmented button,
+  .option-card {
+    min-height: 44px;
+  }
+
+  .generate-btn {
+    min-height: 52px;
+    font-size: 15px;
+  }
+
   .destinations,
   .journey-presets,
   .how-it-works { padding: 60px 20px; }
@@ -864,4 +986,36 @@ body {
   .dest-grid  { grid-template-columns: 1fr; }
   .date-row   { flex-direction: column; }
   .date-arrow { display: none; }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    flex-direction: column;
+  }
+
+  .nav-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .nav-btn-ghost,
+  .nav-btn-outline,
+  .nav-btn-primary {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .hero-title {
+    font-size: 29px;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+
+  .preset-card,
+  .dest-card,
+  .step-card {
+    padding: 20px;
+  }
 }
